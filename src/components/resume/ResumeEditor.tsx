@@ -23,26 +23,19 @@ const SortableSection = ({ id, name, type, resumeData, updateResumeData }: Sorta
     setNodeRef,
     transform,
     transition,
-    isDragging
   } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    zIndex: isDragging ? 10 : 1,
-    opacity: isDragging ? 0.8 : 1,
   };
 
   return (
-    <Card 
-      ref={setNodeRef} 
-      style={style} 
-      className="mb-4 transition-shadow hover:shadow-md"
-    >
+    <Card ref={setNodeRef} style={style} className="mb-4">
       <CardHeader className="flex flex-row items-center justify-between py-3">
         <div className="flex items-center gap-2">
           <div
-            className="cursor-grab p-1 text-gray-500 hover:text-gray-700 transition-colors"
+            className="cursor-grab p-1 text-gray-500 hover:text-gray-700"
             {...attributes}
             {...listeners}
           >

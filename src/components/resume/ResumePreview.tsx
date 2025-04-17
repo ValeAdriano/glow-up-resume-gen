@@ -8,7 +8,6 @@ import { Download, Eye } from "lucide-react";
 import ModernTemplate from "./templates/ModernTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
-import { toast } from "sonner";
 
 interface ResumePreviewProps {
   resumeData: ResumeData;
@@ -34,8 +33,6 @@ const ResumePreview = ({ resumeData, template }: ResumePreviewProps) => {
   const handleDownloadPDF = () => {
     if (!resumeRef.current) return;
 
-    toast.info("Preparando PDF para download...");
-
     const element = resumeRef.current;
     const opt = {
       margin: 10,
@@ -45,12 +42,7 @@ const ResumePreview = ({ resumeData, template }: ResumePreviewProps) => {
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(element).save().then(() => {
-      toast.success("PDF gerado com sucesso!");
-    }).catch((error) => {
-      console.error("Error generating PDF:", error);
-      toast.error("Erro ao gerar PDF. Tente novamente.");
-    });
+    html2pdf().set(opt).from(element).save();
   };
 
   return (
@@ -64,7 +56,6 @@ const ResumePreview = ({ resumeData, template }: ResumePreviewProps) => {
           size="sm" 
           onClick={handleDownloadPDF}
           variant="outline"
-          className="transition-all hover:scale-105 hover:shadow-sm"
         >
           <Download className="h-4 w-4 mr-2" />
           Baixar PDF
@@ -75,7 +66,7 @@ const ResumePreview = ({ resumeData, template }: ResumePreviewProps) => {
         <div className="p-8 flex justify-center">
           <div 
             ref={resumeRef}
-            className="w-[210mm] min-h-[297mm] bg-white shadow-lg transition-transform duration-300"
+            className="w-[210mm] min-h-[297mm] bg-white shadow-lg"
           >
             {renderTemplate()}
           </div>
