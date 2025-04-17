@@ -2,25 +2,72 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ResumeProvider } from "./contexts/ResumeContext";
+import MainLayout from "./components/layouts/MainLayout";
+import DashboardLayout from "./components/layouts/DashboardLayout";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import SignIn from "./pages/auth/SignIn";
+import SignUp from "./pages/auth/SignUp";
+
+import Dashboard from "./pages/dashboard/Dashboard";
+const CreateResume = () => <div className="page-container"><h1>Criar Novo Currículo</h1><p>Página em construção</p></div>;
+const EditResume = () => <div className="page-container"><h1>Editar Currículo</h1><p>Página em construção</p></div>;
+const Profile = () => <div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>;
+const Settings = () => <div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>;
+
+// Auth Guard
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    return <Navigate to="/auth/sign-in" replace />;
+  }
+  return <>{children}</>;
+};
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <ResumeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth/sign-in" element={<SignIn />} />
+                <Route path="/auth/sign-up" element={<SignUp />} />
+              </Route>
+
+              {/* Protected Dashboard Routes */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="create" element={<CreateResume />} />
+                <Route path="edit/:id" element={<EditResume />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ResumeProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
