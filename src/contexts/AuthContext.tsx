@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User } from "../types";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +9,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
+  createTestUser: (email: string, password: string, credits?: number) => Promise<void>; // New method
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,15 +18,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Simulação de autenticação para ser substituída pelo Supabase
   useEffect(() => {
-    // Aqui você deverá verificar se há um usuário já logado no Supabase
     const checkUser = async () => {
       try {
-        // Quando o Supabase for integrado, substitua isso
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            fullName: session.user.user_metadata.full_name
+          });
         }
       } catch (error) {
         console.error("Error checking authentication:", error);
@@ -34,21 +37,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     checkUser();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          fullName: session.user.user_metadata.full_name
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // Aqui você implementará a lógica de login com o Supabase
-      // Temporariamente, vamos simular um usuário logado
-      const mockUser: User = {
-        id: "123",
-        email,
-        fullName: "Usuário Teste",
-      };
-      
-      localStorage.setItem("user", JSON.stringify(mockUser));
-      setUser(mockUser);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
     } catch (error) {
       console.error("Error signing in:", error);
       throw error;
@@ -60,16 +71,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signUp = async (email: string, password: string, fullName: string) => {
     setLoading(true);
     try {
-      // Aqui você implementará a lógica de registro com o Supabase
-      // Temporariamente, vamos simular um usuário registrado
-      const mockUser: User = {
-        id: "123",
+      const { data, error } = await supabase.auth.signUp({
         email,
-        fullName,
-      };
-      
-      localStorage.setItem("user", JSON.stringify(mockUser));
-      setUser(mockUser);
+        password,
+        options: {
+          data: { full_name: fullName }
+        }
+      });
+
+      if (error) throw error;
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;
@@ -81,8 +91,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signOut = async () => {
     setLoading(true);
     try {
-      // Aqui você implementará a lógica de logout com o Supabase
-      localStorage.removeItem("user");
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       setUser(null);
     } catch (error) {
       console.error("Error signing out:", error);
@@ -92,8 +102,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const createTestUser = async (email: string, password: string, credits: number = 5) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Directly insert credits for the new user
+      if (data.user) {
+        const { error: creditsError } = await supabase
+          .from('creditos')
+          .insert({ user_id: data.user.id, quantidade: credits });
+
+        if (creditsError) throw creditsError;
+      }
+    } catch (error) {
+      console.error("Error creating test user:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut,
+      createTestUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );
