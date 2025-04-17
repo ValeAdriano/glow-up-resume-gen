@@ -15,6 +15,7 @@ import SignUp from "./pages/auth/SignUp";
 import Dashboard from "./pages/dashboard/Dashboard";
 import CreateResume from "./pages/dashboard/CreateResume";
 import EditResume from "./pages/dashboard/EditResume";
+import Credits from "./pages/dashboard/Credits";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = localStorage.getItem("user");
