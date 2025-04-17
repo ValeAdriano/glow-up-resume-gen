@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,7 +14,7 @@ import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 
 import Dashboard from "./pages/dashboard/Dashboard";
-const CreateResume = () => <div className="page-container"><h1>Criar Novo Currículo</h1><p>Página em construção</p></div>;
+import CreateResume from "./pages/dashboard/CreateResume";
 const EditResume = () => <div className="page-container"><h1>Editar Currículo</h1><p>Página em construção</p></div>;
 const Profile = () => <div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>;
 const Settings = () => <div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>;
