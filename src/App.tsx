@@ -12,12 +12,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
-
 import Dashboard from "./pages/dashboard/Dashboard";
 import CreateResume from "./pages/dashboard/CreateResume";
-const EditResume = () => <div className="page-container"><h1>Editar Currículo</h1><p>Página em construção</p></div>;
-const Profile = () => <div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>;
-const Settings = () => <div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>;
+import EditResume from "./pages/dashboard/EditResume";
 
 // Auth Guard
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -58,8 +55,8 @@ const App = () => (
                 <Route index element={<Dashboard />} />
                 <Route path="create" element={<CreateResume />} />
                 <Route path="edit/:id" element={<EditResume />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="settings" element={<Settings />} />
+                <Route path="profile" element={<div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>} />
+                <Route path="settings" element={<div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>} />
               </Route>
 
               {/* Catch-all */}
