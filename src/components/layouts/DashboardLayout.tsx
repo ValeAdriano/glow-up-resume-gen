@@ -1,10 +1,9 @@
-
 import React, { ReactNode } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
-import { FilePlus, FileText, LogOut, Settings, User } from "lucide-react";
+import { FilePlus, FileText, LogOut, Settings, User, Coins } from "lucide-react";
 
 interface SidebarNavProps {
   items: {
@@ -65,6 +64,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = () => {
       title: "Criar Novo Currículo",
       href: "/dashboard/create",
       icon: <FilePlus className="h-5 w-5" />,
+    },
+    {
+      title: "Créditos",
+      href: "/dashboard/credits",
+      icon: <Coins className="h-5 w-5" />,
     },
     {
       title: "Perfil",

@@ -16,7 +16,6 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import CreateResume from "./pages/dashboard/CreateResume";
 import EditResume from "./pages/dashboard/EditResume";
 
-// Auth Guard
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const user = localStorage.getItem("user");
   if (!user) {
@@ -56,6 +55,7 @@ const App = () => (
                   <Route index element={<Dashboard />} />
                   <Route path="create" element={<CreateResume />} />
                   <Route path="edit/:id" element={<EditResume />} />
+                  <Route path="credits" element={<Credits />} />
                   <Route path="profile" element={<div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>} />
                   <Route path="settings" element={<div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>} />
                 </Route>
