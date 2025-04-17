@@ -14,6 +14,7 @@ const Credits = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [amount, setAmount] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleAddCredits = async () => {
     if (!user) {
@@ -24,30 +25,75 @@ const Credits = () => {
       });
       return;
     }
+
+    // Validate input before proceeding
+    const creditAmount = Number(amount);
+    if (isNaN(creditAmount) || creditAmount <= 0) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira uma quantidade válida de créditos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
+      console.log("Adding credits:", {
+        userId: user.id,
+        currentCredits: credits,
+        amountToAdd: creditAmount
+      });
+      
+      // Check if a record exists for this user
+      const { data: existingRecord, error: checkError } = await supabase
         .from('creditos')
-        .update({ 
-          quantidade: (credits ?? 0) + Number(amount)
-        })
-        .eq('user_id', user.id);
-
-      if (error) throw error;
+        .select('quantidade')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows found"
+        throw checkError;
+      }
+      
+      let result;
+      
+      if (!existingRecord) {
+        // No record exists, insert a new one
+        result = await supabase
+          .from('creditos')
+          .insert({ 
+            user_id: user.id,
+            quantidade: creditAmount 
+          });
+      } else {
+        // Record exists, update it
+        result = await supabase
+          .from('creditos')
+          .update({ 
+            quantidade: (existingRecord.quantidade || 0) + creditAmount
+          })
+          .eq('user_id', user.id);
+      }
+      
+      if (result.error) throw result.error;
 
       await refreshCredits();
       toast({
         title: "Créditos adicionados",
-        description: `${amount} créditos foram adicionados à sua conta.`
+        description: `${creditAmount} créditos foram adicionados à sua conta.`
       });
       setAmount("");
     } catch (error) {
       console.error('Error adding credits:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível adicionar os créditos.",
+        description: "Não foi possível adicionar os créditos. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -87,9 +133,9 @@ const Credits = () => {
               />
               <Button 
                 onClick={handleAddCredits}
-                disabled={!user || !amount || Number(amount) <= 0}
+                disabled={isSubmitting || !user || !amount || Number(amount) <= 0}
               >
-                Adicionar
+                {isSubmitting ? "Adicionando..." : "Adicionar"}
               </Button>
             </div>
           </CardContent>
