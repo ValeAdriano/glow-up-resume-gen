@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useForm } from "react-hook-form";
@@ -25,26 +24,25 @@ interface SectionFormProps {
 const SectionForm = ({ sectionType, resumeData, updateResumeData }: SectionFormProps) => {
   switch (sectionType) {
     case "personalInfo":
-      return <PersonalInfoForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <PersonalInfoForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "objective":
-      return <ObjectiveForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <ObjectiveForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "education":
-      return <EducationForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <EducationForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "experience":
-      return <ExperienceForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <ExperienceForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "skills":
-      return <SkillsForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <SkillsForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "certifications":
-      return <CertificationsForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <CertificationsForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     case "links":
-      return <LinksForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <LinksForm resumeData={resumeData} updateResumeData={updateResumeData} sectionType={sectionType} />;
     default:
       return <div>Tipo de seção não suportado</div>;
   }
 };
 
-// Formulário de Informações Pessoais
-const PersonalInfoForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const PersonalInfoForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const form = useForm({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: resumeData.personalInfo,
@@ -54,7 +52,6 @@ const PersonalInfoForm = ({ resumeData, updateResumeData }: SectionFormProps) =>
     updateResumeData("personalInfo", data);
   };
 
-  // Atualiza os dados ao digitar
   const handleChange = () => {
     const values = form.getValues();
     updateResumeData("personalInfo", values);
@@ -139,8 +136,7 @@ const PersonalInfoForm = ({ resumeData, updateResumeData }: SectionFormProps) =>
   );
 };
 
-// Formulário de Objetivo Profissional
-const ObjectiveForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const ObjectiveForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     updateResumeData("objective", e.target.value);
   };
@@ -163,8 +159,7 @@ const ObjectiveForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
   );
 };
 
-// Formulário de Formação Acadêmica
-const EducationForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const EducationForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const addEducation = () => {
@@ -306,8 +301,7 @@ const EducationForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
   );
 };
 
-// Formulário de Experiência Profissional
-const ExperienceForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const ExperienceForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const addExperience = () => {
@@ -450,8 +444,7 @@ const ExperienceForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
   );
 };
 
-// Formulário de Habilidades
-const SkillsForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const SkillsForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const addSkill = () => {
     const newSkill: Skill = {
       id: uuidv4(),
@@ -510,8 +503,7 @@ const SkillsForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
   );
 };
 
-// Formulário de Certificações
-const CertificationsForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const CertificationsForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const [openItems, setOpenItems] = useState<string[]>([]);
 
   const addCertification = () => {
@@ -640,8 +632,7 @@ const CertificationsForm = ({ resumeData, updateResumeData }: SectionFormProps) 
   );
 };
 
-// Formulário de Links
-const LinksForm = ({ resumeData, updateResumeData }: SectionFormProps) => {
+const LinksForm = ({ resumeData, updateResumeData, sectionType }: SectionFormProps) => {
   const addLink = () => {
     const newLink: Link = {
       id: uuidv4(),

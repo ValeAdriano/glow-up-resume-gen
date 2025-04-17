@@ -9,13 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      creditos: {
+        Row: {
+          criado_em: string
+          id: string
+          quantidade: number
+          ultimo_uso: string | null
+          user_id: string
+        }
+        Insert: {
+          criado_em?: string
+          id?: string
+          quantidade?: number
+          ultimo_uso?: string | null
+          user_id: string
+        }
+        Update: {
+          criado_em?: string
+          id?: string
+          quantidade?: number
+          ultimo_uso?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      curriculos: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          dados: Json
+          id: string
+          modelo: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          dados: Json
+          id?: string
+          modelo: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          dados?: Json
+          id?: string
+          modelo?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_credit: {
+        Args: { user_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

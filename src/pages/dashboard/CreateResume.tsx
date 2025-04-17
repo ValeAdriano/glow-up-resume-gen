@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { createResumeSchema } from "@/lib/validations";
 import { useResume } from "@/contexts/ResumeContext";
+import { useCredits } from "@/contexts/CreditsContext";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,7 @@ const defaultSections = [
 ];
 
 const CreateResume = () => {
+  const { checkCredit } = useCredits();
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [sections, setSections] = useState(defaultSections);
   const [submitting, setSubmitting] = useState(false);
@@ -99,8 +100,15 @@ const CreateResume = () => {
     try {
       setSubmitting(true);
       
-      // Filter out empty sections before saving
-      const filteredData = { ...resumeData };
+      // Check if user has credits
+      const hasCredits = await checkCredit();
+      if (!hasCredits) {
+        toast.error("Créditos insuficientes", {
+          description: "Você precisa comprar mais créditos para criar um novo currículo."
+        });
+        // TODO: Navigate to credits purchase page when implemented
+        return;
+      }
       
       // Create the resume
       await createResume(values.title, values.template);

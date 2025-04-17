@@ -1,4 +1,3 @@
-
 export type Template = "modern" | "classic" | "minimal";
 
 export interface Resume {
@@ -75,4 +74,12 @@ export interface User {
   id: string;
   email: string;
   fullName?: string;
+}
+
+export interface Credits {
+  id: string;
+  user_id: string;
+  quantidade: number;
+  ultimo_uso: string | null;
+  criado_em: string;
 }
