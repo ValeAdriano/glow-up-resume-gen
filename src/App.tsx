@@ -1,75 +1,44 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ResumeProvider } from './contexts/ResumeContext';
+import LandingPage from './pages/LandingPage';
+import SignUp from './pages/SignUp';
+import Login from './pages/Login';
+import DashboardLayout from './components/layouts/DashboardLayout';
+import Dashboard from './pages/dashboard/Dashboard';
+import CreateResume from './pages/dashboard/CreateResume';
+import EditResume from './pages/dashboard/EditResume';
+import Profile from './pages/dashboard/Profile';
+import Settings from './pages/dashboard/Settings';
+import NotFound from './pages/NotFound';
+import './index.css';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ResumeProvider } from "./contexts/ResumeContext";
-import MainLayout from "./components/layouts/MainLayout";
-import DashboardLayout from "./components/layouts/DashboardLayout";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import SignIn from "./pages/auth/SignIn";
-import SignUp from "./pages/auth/SignUp";
-
-import Dashboard from "./pages/dashboard/Dashboard";
-import CreateResume from "./pages/dashboard/CreateResume";
-const EditResume = () => <div className="page-container"><h1>Editar Currículo</h1><p>Página em construção</p></div>;
-const Profile = () => <div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>;
-const Settings = () => <div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>;
-
-// Auth Guard
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const user = localStorage.getItem("user");
-  if (!user) {
-    return <Navigate to="/auth/sign-in" replace />;
-  }
-  return <>{children}</>;
-};
-
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+function App() {
+  return (
     <AuthProvider>
       <ResumeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth/sign-in" element={<SignIn />} />
-                <Route path="/auth/sign-up" element={<SignUp />} />
-              </Route>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
 
-              {/* Protected Dashboard Routes */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<Dashboard />} />
-                <Route path="create" element={<CreateResume />} />
-                <Route path="edit/:id" element={<EditResume />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="create" element={<CreateResume />} />
+              {/* Add the edit route to the router configuration */}
+              <Route path="edit/:id" element={<EditResume />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
       </ResumeProvider>
     </AuthProvider>
-  </QueryClientProvider>
-);
+  );
+}
 
 export default App;

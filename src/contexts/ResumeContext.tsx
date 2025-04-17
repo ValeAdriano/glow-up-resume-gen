@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Resume, ResumeData, Template } from "../types";
 import { useAuth } from "./AuthContext";
@@ -16,7 +15,6 @@ interface ResumeContextType {
   saveCurrentResume: () => Promise<void>;
 }
 
-// Função auxiliar para criar um currículo vazio
 const createEmptyResume = (userId: string, title: string, template: Template): Resume => {
   const now = new Date().toISOString();
   return {
@@ -49,7 +47,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [currentResume, setCurrentResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Carrega os currículos do usuário quando ele faz login
   useEffect(() => {
     if (user) {
       loadUserResumes();
@@ -59,12 +56,9 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [user]);
 
-  // Função para carregar os currículos do usuário
   const loadUserResumes = async () => {
     setLoading(true);
     try {
-      // Aqui você implementará a lógica para buscar currículos do Supabase
-      // Por enquanto, vamos usar o localStorage para simular
       const storedResumes = localStorage.getItem(`resumes_${user?.id}`);
       if (storedResumes) {
         setResumes(JSON.parse(storedResumes));
@@ -78,7 +72,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
-  // Funções de gerenciamento de currículos
   const createResume = async (title: string, template: Template): Promise<Resume> => {
     if (!user) throw new Error("User must be logged in to create a resume");
 
@@ -86,12 +79,10 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const newResume = createEmptyResume(user.id, title, template);
       
-      // Adiciona o novo currículo à lista
       const updatedResumes = [...resumes, newResume];
       setResumes(updatedResumes);
       setCurrentResume(newResume);
       
-      // Salva no localStorage (temporário até integrar com Supabase)
       localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
       
       return newResume;

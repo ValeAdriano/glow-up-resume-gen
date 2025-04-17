@@ -25,19 +25,19 @@ interface SectionFormProps {
 const SectionForm = ({ sectionType, resumeData, updateResumeData }: SectionFormProps) => {
   switch (sectionType) {
     case "personalInfo":
-      return <PersonalInfoForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <PersonalInfoForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "objective":
-      return <ObjectiveForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <ObjectiveForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "education":
-      return <EducationForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <EducationForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "experience":
-      return <ExperienceForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <ExperienceForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "skills":
-      return <SkillsForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <SkillsForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "certifications":
-      return <CertificationsForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <CertificationsForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     case "links":
-      return <LinksForm resumeData={resumeData} updateResumeData={updateResumeData} />;
+      return <LinksForm sectionType={sectionType} resumeData={resumeData} updateResumeData={updateResumeData} />;
     default:
       return <div>Tipo de seção não suportado</div>;
   }
