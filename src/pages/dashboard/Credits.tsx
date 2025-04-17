@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useCredits } from "@/contexts/CreditsContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,13 +16,22 @@ const Credits = () => {
   const [amount, setAmount] = useState<string>("");
 
   const handleAddCredits = async () => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para adicionar créditos.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('creditos')
         .update({ 
           quantidade: (credits ?? 0) + Number(amount)
         })
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
@@ -77,7 +87,7 @@ const Credits = () => {
               />
               <Button 
                 onClick={handleAddCredits}
-                disabled={!amount || Number(amount) <= 0}
+                disabled={!user || !amount || Number(amount) <= 0}
               >
                 Adicionar
               </Button>
