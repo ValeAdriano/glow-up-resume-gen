@@ -5,15 +5,16 @@ import { ResumeData } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { GripVertical, PlusCircle } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import SectionForm from "./SectionForm";
+import { ExtendedSectionForm } from "./ExtendedSectionForm";
 
 interface SortableSectionProps {
   id: string;
   name: string;
   type: string;
   resumeData: ResumeData;
-  updateResumeData: (type: keyof ResumeData, data: any) => void;
+  updateResumeData: (type: keyof ResumeData | string, data: any) => void;
 }
 
 const SortableSection = ({ id, name, type, resumeData, updateResumeData }: SortableSectionProps) => {
@@ -30,6 +31,8 @@ const SortableSection = ({ id, name, type, resumeData, updateResumeData }: Sorta
     transition,
   };
 
+  const isStandardSection = ['personalInfo', 'objective', 'education', 'experience', 'skills', 'certifications', 'links'].includes(type);
+
   return (
     <Card ref={setNodeRef} style={style} className="mb-4">
       <CardHeader className="flex flex-row items-center justify-between py-3">
@@ -45,11 +48,19 @@ const SortableSection = ({ id, name, type, resumeData, updateResumeData }: Sorta
         </div>
       </CardHeader>
       <CardContent>
-        <SectionForm 
-          sectionType={type as keyof ResumeData} 
-          resumeData={resumeData}
-          updateResumeData={updateResumeData}
-        />
+        {isStandardSection ? (
+          <SectionForm 
+            sectionType={type as keyof ResumeData} 
+            resumeData={resumeData}
+            updateResumeData={updateResumeData}
+          />
+        ) : (
+          <ExtendedSectionForm
+            sectionType={type}
+            resumeData={resumeData}
+            updateResumeData={updateResumeData}
+          />
+        )}
       </CardContent>
     </Card>
   );
@@ -58,7 +69,7 @@ const SortableSection = ({ id, name, type, resumeData, updateResumeData }: Sorta
 interface ResumeEditorProps {
   sections: Array<{ id: string; name: string; type: string }>;
   resumeData: ResumeData;
-  updateResumeData: (type: keyof ResumeData, data: any) => void;
+  updateResumeData: (type: keyof ResumeData | string, data: any) => void;
 }
 
 const ResumeEditor = ({ sections, resumeData, updateResumeData }: ResumeEditorProps) => {

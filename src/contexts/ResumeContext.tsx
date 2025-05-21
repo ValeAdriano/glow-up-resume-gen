@@ -1,7 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Resume, ResumeData, Template } from "../types";
-import { useAuth } from "./AuthContext";
 import { v4 as uuidv4 } from "uuid";
 
 interface ResumeContextType {
@@ -17,11 +16,11 @@ interface ResumeContextType {
 }
 
 // Função auxiliar para criar um currículo vazio
-const createEmptyResume = (userId: string, title: string, template: Template): Resume => {
+const createEmptyResume = (title: string, template: Template): Resume => {
   const now = new Date().toISOString();
   return {
     id: uuidv4(),
-    userId,
+    userId: "local-user",
     title,
     createdAt: now,
     updatedAt: now,
@@ -36,7 +35,34 @@ const createEmptyResume = (userId: string, title: string, template: Template): R
       experience: [],
       skills: [],
       certifications: [],
-      links: []
+      links: [],
+      technicalCategories: {
+        technicalSkills: [],
+        certifications: [],
+        projects: [],
+        languages: [],
+        extracurricularCourses: [],
+        publications: []
+      },
+      personalCategories: {
+        volunteerWork: [],
+        academicActivities: [],
+        events: [],
+        internationalExperience: [],
+        awardsRecognitions: []
+      },
+      strategicCategories: {
+        professionalInterests: [],
+        softSkills: [],
+        availability: {
+          relocation: false,
+          travel: false,
+          remoteWork: false,
+          workHours: 'integral',
+          additionalInfo: ''
+        },
+        references: []
+      }
     }
   };
 };
@@ -44,28 +70,20 @@ const createEmptyResume = (userId: string, title: string, template: Template): R
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
 export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [currentResume, setCurrentResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Carrega os currículos do usuário quando ele faz login
+  // Carrega os currículos do localStorage ao inicializar
   useEffect(() => {
-    if (user) {
-      loadUserResumes();
-    } else {
-      setResumes([]);
-      setCurrentResume(null);
-    }
-  }, [user]);
+    loadUserResumes();
+  }, []);
 
-  // Função para carregar os currículos do usuário
+  // Função para carregar os currículos do localStorage
   const loadUserResumes = async () => {
     setLoading(true);
     try {
-      // Aqui você implementará a lógica para buscar currículos do Supabase
-      // Por enquanto, vamos usar o localStorage para simular
-      const storedResumes = localStorage.getItem(`resumes_${user?.id}`);
+      const storedResumes = localStorage.getItem(`resumes_local`);
       if (storedResumes) {
         setResumes(JSON.parse(storedResumes));
       } else {
@@ -80,19 +98,17 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Funções de gerenciamento de currículos
   const createResume = async (title: string, template: Template): Promise<Resume> => {
-    if (!user) throw new Error("User must be logged in to create a resume");
-
     setLoading(true);
     try {
-      const newResume = createEmptyResume(user.id, title, template);
+      const newResume = createEmptyResume(title, template);
       
       // Adiciona o novo currículo à lista
       const updatedResumes = [...resumes, newResume];
       setResumes(updatedResumes);
       setCurrentResume(newResume);
       
-      // Salva no localStorage (temporário até integrar com Supabase)
-      localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
+      // Salva no localStorage
+      localStorage.setItem(`resumes_local`, JSON.stringify(updatedResumes));
       
       return newResume;
     } catch (error) {
@@ -104,8 +120,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const updateResume = async (id: string, data: ResumeData): Promise<void> => {
-    if (!user) throw new Error("User must be logged in to update a resume");
-
     setLoading(true);
     try {
       const updatedResumes = resumes.map(resume => {
@@ -126,7 +140,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
       
       setResumes(updatedResumes);
-      localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
+      localStorage.setItem(`resumes_local`, JSON.stringify(updatedResumes));
     } catch (error) {
       console.error("Error updating resume:", error);
       throw error;
@@ -136,8 +150,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const updateResumeTemplate = async (id: string, template: Template): Promise<void> => {
-    if (!user) throw new Error("User must be logged in to update a resume");
-
     setLoading(true);
     try {
       const updatedResumes = resumes.map(resume => {
@@ -158,7 +170,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
       
       setResumes(updatedResumes);
-      localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
+      localStorage.setItem(`resumes_local`, JSON.stringify(updatedResumes));
     } catch (error) {
       console.error("Error updating resume template:", error);
       throw error;
@@ -168,8 +180,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const deleteResume = async (id: string): Promise<void> => {
-    if (!user) throw new Error("User must be logged in to delete a resume");
-
     setLoading(true);
     try {
       const updatedResumes = resumes.filter(resume => resume.id !== id);
@@ -180,7 +190,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setCurrentResume(null);
       }
       
-      localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
+      localStorage.setItem(`resumes_local`, JSON.stringify(updatedResumes));
     } catch (error) {
       console.error("Error deleting resume:", error);
       throw error;
@@ -207,7 +217,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const saveCurrentResume = async (): Promise<void> => {
-    if (!currentResume || !user) return;
+    if (!currentResume) return;
     
     setLoading(true);
     try {
@@ -222,7 +232,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
       
       setResumes(updatedResumes);
-      localStorage.setItem(`resumes_${user.id}`, JSON.stringify(updatedResumes));
+      localStorage.setItem(`resumes_local`, JSON.stringify(updatedResumes));
     } catch (error) {
       console.error("Error saving resume:", error);
       throw error;

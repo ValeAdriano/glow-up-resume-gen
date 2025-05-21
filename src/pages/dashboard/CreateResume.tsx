@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -7,14 +8,11 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { createResumeSchema } from "@/lib/validations";
+import { z } from "zod";
 import { useResume } from "@/contexts/ResumeContext";
-import { useCredits } from "@/contexts/CreditsContext";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Template, ResumeData } from "@/types";
@@ -23,7 +21,10 @@ import ResumePreview from "@/components/resume/ResumePreview";
 import { Separator } from "@/components/ui/separator";
 import { FilePlus, Loader2 } from "lucide-react";
 
-import type { z } from "zod";
+const createResumeSchema = z.object({
+  title: z.string().min(1, "Título é obrigatório"),
+  template: z.enum(["modern", "classic", "minimal"])
+});
 
 type FormValues = z.infer<typeof createResumeSchema>;
 
@@ -41,6 +42,33 @@ const initialResumeData: ResumeData = {
   skills: [],
   certifications: [],
   links: [],
+  technicalCategories: {
+    technicalSkills: [],
+    certifications: [],
+    projects: [],
+    languages: [],
+    extracurricularCourses: [],
+    publications: []
+  },
+  personalCategories: {
+    volunteerWork: [],
+    academicActivities: [],
+    events: [],
+    internationalExperience: [],
+    awardsRecognitions: []
+  },
+  strategicCategories: {
+    professionalInterests: [],
+    softSkills: [],
+    availability: {
+      relocation: false,
+      travel: false,
+      remoteWork: false,
+      workHours: 'integral',
+      additionalInfo: ''
+    },
+    references: []
+  }
 };
 
 const defaultSections = [
@@ -49,12 +77,25 @@ const defaultSections = [
   { id: "experience", name: "Experiência Profissional", type: "experience" },
   { id: "education", name: "Formação Acadêmica", type: "education" },
   { id: "skills", name: "Habilidades", type: "skills" },
+  { id: "technicalSkills", name: "Habilidades Técnicas", type: "technicalSkills" },
+  { id: "projects", name: "Projetos", type: "projects" },
+  { id: "languages", name: "Idiomas", type: "languages" },
+  { id: "extracurricularCourses", name: "Cursos Extracurriculares", type: "extracurricularCourses" },
+  { id: "publications", name: "Publicações", type: "publications" },
+  { id: "volunteerWork", name: "Voluntariado", type: "volunteerWork" },
+  { id: "academicActivities", name: "Atividades Acadêmicas", type: "academicActivities" },
+  { id: "events", name: "Eventos e Participações", type: "events" },
+  { id: "internationalExperience", name: "Experiência Internacional", type: "internationalExperience" },
+  { id: "awardsRecognitions", name: "Prêmios e Reconhecimentos", type: "awardsRecognitions" },
+  { id: "professionalInterests", name: "Interesses Profissionais", type: "professionalInterests" },
+  { id: "softSkills", name: "Soft Skills", type: "softSkills" },
+  { id: "availability", name: "Disponibilidade", type: "availability" },
+  { id: "references", name: "Referências", type: "references" },
   { id: "certifications", name: "Certificações", type: "certifications" },
   { id: "links", name: "Links", type: "links" },
 ];
 
 const CreateResume = () => {
-  const { checkCredit } = useCredits();
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [sections, setSections] = useState(defaultSections);
   const [submitting, setSubmitting] = useState(false);
@@ -89,26 +130,31 @@ const CreateResume = () => {
     }
   };
 
-  const updateResumeData = (type: keyof ResumeData, data: any) => {
-    setResumeData((prev) => ({
-      ...prev,
-      [type]: data,
-    }));
+  const updateResumeData = (type: keyof ResumeData | string, data: any) => {
+    setResumeData((prev) => {
+      // Handle nested properties for new categories
+      if (type.includes('.')) {
+        const [category, subType] = type.split('.');
+        return {
+          ...prev,
+          [category]: {
+            ...prev[category as keyof ResumeData],
+            [subType]: data
+          }
+        };
+      }
+      
+      // Handle top-level properties
+      return {
+        ...prev,
+        [type]: data,
+      };
+    });
   };
 
   const onSubmit = async (values: FormValues) => {
     try {
       setSubmitting(true);
-      
-      // Check if user has credits
-      const hasCredits = await checkCredit();
-      if (!hasCredits) {
-        toast.error("Créditos insuficientes", {
-          description: "Você precisa comprar mais créditos para criar um novo currículo."
-        });
-        // TODO: Navigate to credits purchase page when implemented
-        return;
-      }
       
       // Create the resume
       await createResume(values.title, values.template);
