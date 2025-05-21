@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { ResumeData, TechnicalSkill, ExtendedCertification, Project, Language, ExtracurricularCourse, Publication } from "@/types";
@@ -185,14 +184,161 @@ const TechnicalSkillsForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, u
   );
 };
 
-// Placeholder para os outros formulários de seções estendidas
-const ExtendedCertificationsForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, updateResumeData, sectionType }) => {
+// Implementação do formulário para Certificações Detalhadas
+const ExtendedCertificationsForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, updateResumeData }) => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  
+  // Obtém as certificações detalhadas do resumeData
+  const certifications = resumeData.technicalCategories.certifications || [];
+
+  // Adiciona uma nova certificação
+  const addCertification = () => {
+    const newCertification: ExtendedCertification = {
+      id: uuidv4(),
+      name: "",
+      issuer: "",
+      platform: "",
+      date: "",
+      description: "",
+      url: "",
+    };
+    
+    const updatedCertifications = [...certifications, newCertification];
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      certifications: updatedCertifications
+    });
+  };
+
+  // Atualiza uma certificação existente
+  const updateCertification = (index: number, field: keyof ExtendedCertification, value: any) => {
+    const updatedCertifications = [...certifications];
+    updatedCertifications[index] = {
+      ...updatedCertifications[index],
+      [field]: value
+    };
+    
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      certifications: updatedCertifications
+    });
+  };
+
+  // Remove uma certificação
+  const removeCertification = (index: number) => {
+    const updatedCertifications = [...certifications];
+    updatedCertifications.splice(index, 1);
+    
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      certifications: updatedCertifications
+    });
+  };
+
   return (
-    <div className="p-4 border rounded-md bg-gray-50">
-      <p>Formulário para Certificações Detalhadas - Em desenvolvimento</p>
-      <p className="text-sm text-gray-500 mt-2">
-        Esta funcionalidade será implementada em breve.
-      </p>
+    <div className="space-y-4">
+      <Accordion
+        type="multiple"
+        value={openItems}
+        onValueChange={setOpenItems}
+        className="space-y-4"
+      >
+        {certifications.map((certification, index) => (
+          <AccordionItem key={certification.id} value={certification.id} className="border rounded-md">
+            <div className="flex items-center justify-between px-4">
+              <AccordionTrigger className="py-2 hover:no-underline">
+                {certification.name || `Certificação ${index + 1}`}
+              </AccordionTrigger>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeCertification(index);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Nome da Certificação*</label>
+                  <Input
+                    value={certification.name}
+                    onChange={(e) => updateCertification(index, "name", e.target.value)}
+                    placeholder="Ex: AWS Certified Solutions Architect"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Emissor*</label>
+                  <Input
+                    value={certification.issuer}
+                    onChange={(e) => updateCertification(index, "issuer", e.target.value)}
+                    placeholder="Ex: Amazon Web Services"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Plataforma</label>
+                  <Input
+                    value={certification.platform}
+                    onChange={(e) => updateCertification(index, "platform", e.target.value)}
+                    placeholder="Ex: Coursera, Udemy, etc."
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Data de Emissão*</label>
+                  <Input
+                    type="date"
+                    value={certification.date}
+                    onChange={(e) => updateCertification(index, "date", e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Descrição (opcional)</label>
+                  <Textarea
+                    value={certification.description || ""}
+                    onChange={(e) => updateCertification(index, "description", e.target.value)}
+                    placeholder="Descreva brevemente a certificação e o que você aprendeu"
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">URL (opcional)</label>
+                  <Input
+                    value={certification.url || ""}
+                    onChange={(e) => updateCertification(index, "url", e.target.value)}
+                    placeholder="https://exemplo.com/certificado"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+      
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={addCertification}
+      >
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Adicionar Certificação
+      </Button>
     </div>
   );
 };
