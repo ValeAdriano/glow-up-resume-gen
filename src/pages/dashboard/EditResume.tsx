@@ -34,7 +34,10 @@ const defaultSections = [
   // Technical categories
   { id: "technicalSkills", name: "Habilidades Técnicas", type: "technicalSkills" },
   { id: "extendedCertifications", name: "Certificações Detalhadas", type: "extendedCertifications" },
-  // Add more sections as needed
+  { id: "projects", name: "Projetos", type: "projects" },
+  { id: "languages", name: "Idiomas", type: "languages" },
+  // Personal categories
+  { id: "volunteerWork", name: "Trabalho Voluntário", type: "volunteerWork" },
 ];
 
 const EditResume = () => {
