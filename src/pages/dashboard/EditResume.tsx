@@ -22,6 +22,7 @@ import ResumeEditor from "@/components/resume/ResumeEditor";
 import ResumePreview from "@/components/resume/ResumePreview";
 import { FilePlus, Copy, ArrowLeft, Loader2 } from "lucide-react";
 
+// Expanded default sections to include the new categories
 const defaultSections = [
   { id: "personalInfo", name: "Informações Pessoais", type: "personalInfo" },
   { id: "objective", name: "Objetivo Profissional", type: "objective" },
@@ -30,6 +31,10 @@ const defaultSections = [
   { id: "skills", name: "Habilidades", type: "skills" },
   { id: "certifications", name: "Certificações", type: "certifications" },
   { id: "links", name: "Links", type: "links" },
+  // Technical categories
+  { id: "technicalSkills", name: "Habilidades Técnicas", type: "technicalSkills" },
+  { id: "extendedCertifications", name: "Certificações Detalhadas", type: "extendedCertifications" },
+  // Add more sections as needed
 ];
 
 const EditResume = () => {

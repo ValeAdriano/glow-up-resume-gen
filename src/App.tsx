@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ResumeProvider } from "./contexts/ResumeContext";
 import MainLayout from "./components/layouts/MainLayout";
 import DashboardLayout from "./components/layouts/DashboardLayout";
@@ -28,7 +28,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
             </Route>
 
-            {/* Dashboard Routes */}
+            {/* Dashboard Routes - No Auth Required */}
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="create" element={<CreateResume />} />
@@ -36,6 +36,9 @@ const App = () => (
               <Route path="profile" element={<div className="page-container"><h1>Perfil</h1><p>Página em construção</p></div>} />
               <Route path="settings" element={<div className="page-container"><h1>Configurações</h1><p>Página em construção</p></div>} />
             </Route>
+
+            {/* Redirect auth routes to dashboard */}
+            <Route path="/auth/*" element={<Navigate to="/dashboard" replace />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
