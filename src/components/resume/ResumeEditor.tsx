@@ -1,6 +1,6 @@
 
 import { useSortable } from "@dnd-kit/sortable";
-import type { Transform } from "@dnd-kit/utilities";
+import { CSS } from "@dnd-kit/utilities";
 import { ResumeData } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ const SortableSection = ({ id, name, type, resumeData, updateResumeData }: Sorta
   } = useSortable({ id });
 
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: CSS.Transform.toString(transform),
     transition,
   };
 
