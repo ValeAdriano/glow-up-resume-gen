@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Trash2, X, Briefcase, Handshake } from "lucide-react";
+import { PlusCircle, Trash2, X, Briefcase, Handshake, Languages } from "lucide-react";
 
 export interface ExtendedSectionFormProps {
   sectionType: string;
@@ -583,13 +583,127 @@ const ProjectsForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, updateRe
   );
 };
 
-const LanguagesForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, updateResumeData, sectionType }) => {
+// Implementação do formulário para Idiomas
+const LanguagesForm: React.FC<ExtendedSectionFormProps> = ({ resumeData, updateResumeData }) => {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+  
+  // Obtém os idiomas do resumeData
+  const languages = resumeData.technicalCategories.languages || [];
+
+  // Adiciona um novo idioma
+  const addLanguage = () => {
+    const newLanguage: Language = {
+      id: uuidv4(),
+      name: "",
+      proficiency: "básico",
+    };
+    
+    const updatedLanguages = [...languages, newLanguage];
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      languages: updatedLanguages
+    });
+  };
+
+  // Atualiza um idioma existente
+  const updateLanguage = (index: number, field: keyof Language, value: any) => {
+    const updatedLanguages = [...languages];
+    updatedLanguages[index] = {
+      ...updatedLanguages[index],
+      [field]: value
+    };
+    
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      languages: updatedLanguages
+    });
+  };
+
+  // Remove um idioma
+  const removeLanguage = (index: number) => {
+    const updatedLanguages = [...languages];
+    updatedLanguages.splice(index, 1);
+    
+    updateResumeData("technicalCategories", {
+      ...resumeData.technicalCategories,
+      languages: updatedLanguages
+    });
+  };
+
   return (
-    <div className="p-4 border rounded-md bg-gray-50">
-      <p>Formulário para Idiomas - Em desenvolvimento</p>
-      <p className="text-sm text-gray-500 mt-2">
-        Esta funcionalidade será implementada em breve.
-      </p>
+    <div className="space-y-4">
+      <Accordion
+        type="multiple"
+        value={openItems}
+        onValueChange={setOpenItems}
+        className="space-y-4"
+      >
+        {languages.map((language, index) => (
+          <AccordionItem key={language.id} value={language.id} className="border rounded-md">
+            <div className="flex items-center justify-between px-4">
+              <AccordionTrigger className="py-2 hover:no-underline">
+                {language.name || `Idioma ${index + 1}`}
+              </AccordionTrigger>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeLanguage(index);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            <AccordionContent className="px-4 pb-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Nome do Idioma*</label>
+                  <Input
+                    value={language.name}
+                    onChange={(e) => updateLanguage(index, "name", e.target.value)}
+                    placeholder="Ex: Inglês, Espanhol, Francês"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Nível de Proficiência*</label>
+                  <Select 
+                    value={language.proficiency} 
+                    onValueChange={(value: 'básico' | 'intermediário' | 'avançado' | 'fluente' | 'nativo') => 
+                      updateLanguage(index, "proficiency", value)
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Selecione o nível de proficiência" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="básico">Básico</SelectItem>
+                      <SelectItem value="intermediário">Intermediário</SelectItem>
+                      <SelectItem value="avançado">Avançado</SelectItem>
+                      <SelectItem value="fluente">Fluente</SelectItem>
+                      <SelectItem value="nativo">Nativo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+      
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={addLanguage}
+      >
+        <Languages className="mr-2 h-4 w-4" />
+        Adicionar Idioma
+      </Button>
     </div>
   );
 };
