@@ -1,6 +1,20 @@
 
 export type Template = "modern" | "classic" | "minimal";
 
+// User type definition for authentication
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+}
+
+// Credits interface
+export interface Credits {
+  id?: string;
+  user_id?: string;
+  quantidade: number;
+}
+
 export interface Resume {
   id: string;
   userId: string;
